@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker</title>
+    <link rel="stylesheet" href="style.css">
+
+    <script defer src="firebase.js"></script>
+    <script defer src="script.js"></script>
+</head>
+<body>
+
+    <nav>
+       <a href="./Assets/HTML/signin.html">Sign In page</a>
+    </nav>
+
+    <h1>Habit Tracker</h1>
+
+    <!-- Display current date -->
+    <div id="date-container">
+        <h2 id="currentDate"></h2>
+    </div>
+    
+    <!-- Habit input form -->
+    <div id="habit-container">
+        <form id="habitForm">
+            <input type="text" id="habitInput" placeholder="Enter habit" required>
+            <button type="submit">Add Habit</button>
+        </form>
+    </div>
+
+    <!-- Habit list (to display added habits with options) -->
+    <ul id="habitList">
+        <!-- Dynamically populated habit list will go here -->
+    </ul>
+    
+    <!-- QR Code and Biometrics -->
+    <button id="qrButton">Generate QR Code</button>
+    <div id="qrCode"></div>
+    <button id="authButton">Login with Biometrics</button>
+
+    <script>
+        // Function to update current date dynamically
+        const dateContainer = document.getElementById("currentDate");
+        const currentDate = new Date().toLocaleDateString();
+        dateContainer.textContent = currentDate;
+
+        // Form submission logic to add habit
+        const habitForm = document.getElementById('habitForm');
+        const habitInput = document.getElementById('habitInput');
+        const habitList = document.getElementById('habitList');
+
+        habitForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const habitText = habitInput.value.trim();
+            if (habitText) {
+                // Create new habit item in the list
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span class="habit-text">${habitText}</span>
+                    <button class="edit-button">Edit</button>
+                    <button class="save-button" style="display:none;">Save</button>
+                    <button class="delete-button">Delete</button>
+                `;
+                habitList.appendChild(li);
+                habitInput.value = ''; // Clear input after adding habit
+            }
+        });
+
+        // Handle clicking "Edit" button (toggle editing state)
+        habitList.addEventListener('click', function(e) {
+            if (e.target.classList.contains('edit-button')) {
+                const li = e.target.closest('li');
+                const habitText = li.querySelector('.habit-text');
+                const saveButton = li.querySelector('.save-button');
+                const deleteButton = li.querySelector('.delete-button');
+                
+                habitText.setAttribute('contenteditable', 'true');  // Make text editable
+                habitText.focus();
+                saveButton.style.display = 'inline-block';  // Show Save button
+                e.target.style.display = 'none';  // Hide Edit button
+            }
+
+            // Handle clicking "Save" button (save edited habit)
+            if (e.target.classList.contains('save-button')) {
+                const li = e.target.closest('li');
+                const habitText = li.querySelector('.habit-text');
+                const editButton = li.querySelector('.edit-button');
+                const saveButton = li.querySelector('.save-button');
+                
+                habitText.removeAttribute('contenteditable');  // Make text non-editable
+                saveButton.style.display = 'none';  // Hide Save button
+                editButton.style.display = 'inline-block';  // Show Edit button
+                alert('Saved!');
+            }
+
+            // Handle clicking "Delete" button (delete habit)
+            if (e.target.classList.contains('delete-button')) {
+                const li = e.target.closest('li');
+                const confirmDelete = confirm('Do you want to delete this habit?');
+                if (confirmDelete) {
+                    li.remove();  // Delete the habit
+                    alert('Deleted!');
+                }
+            }
+        });
+
+        // Generate and display QR code
+        document.getElementById('qrButton').addEventListener('click', function() {
+            const qrDiv = document.getElementById('qrCode');
+            qrDiv.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.href}" alt="QR Code">`;
+        });
+
+        // Example of biometric login (this is a placeholder action)
+        document.getElementById('authButton').addEventListener('click', function() {
+            alert('Biometric authentication coming soon!');
+        });
+    </script>
+
+</body>
+</html>
